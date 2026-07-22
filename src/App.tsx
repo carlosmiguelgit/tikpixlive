@@ -88,22 +88,6 @@ export default function App() {
       read: false,
     };
     setRewardedUsers(prev => [rewardedUser, ...prev]);
-
-    if (Math.random() < 0.85) {
-      const delaySeconds = Math.floor(Math.random() * 180) + 300;
-      const visibleAt = Date.now() + (delaySeconds * 1000);
-      setPendingTestimonials(prev => [...prev, {
-        id: `dyn-${notif.id}`,
-        name: notif.name,
-        text: "só gratidão guilherme, de verdade",
-        rating: 5,
-        gender: notif.gender,
-        photo: "",
-        months: notif.months,
-        timestamp: new Date(Date.now() - 3600000),
-        visibleAt
-      }]);
-    }
   };
 
   const handleRessarcir = (notif: Notification) => {
@@ -181,7 +165,6 @@ export default function App() {
           )}
           {activeTab === 'depoimentos' && (
             <Depoimentos
-              dynamicTestimonials={dynamicTestimonials}
               rewardedUsers={rewardedUsers}
               onUserClick={handleOpenChat}
               isDarkMode={isDarkMode}
