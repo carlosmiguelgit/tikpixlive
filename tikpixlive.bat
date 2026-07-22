@@ -17,7 +17,7 @@ timeout /t 3 /nobreak >nul
 :: Start ngrok
 start "ngrok" /min ngrok http 3001
 
-:: Wait for ngrok and get URL (full path with /#/nubank)
+:: Wait for ngrok and get URL (full path with /nubank)
 set NGROK_URL=
 for /f "tokens=*" %%a in ('powershell -ExecutionPolicy Bypass -File "%~dp0get-ngrok-url.ps1"') do set NGROK_URL=%%a
 
