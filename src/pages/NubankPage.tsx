@@ -60,12 +60,19 @@ export default function NubankPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold text-[#820AD1]">
-                    R$ {pendingNotif.notification.value.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
-                  </p>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                    Recompensa
-                  </p>
+                  {pendingNotif.notification.alerta ? (
+                    <>
+                      <p className="text-lg font-bold text-yellow-500">REPETIDO</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Não permitido</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg font-bold text-[#820AD1]">
+                        R$ {pendingNotif.notification.value.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
+                      </p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Recompensa</p>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-between py-2 border-t border-slate-100">
