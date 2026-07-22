@@ -60,8 +60,8 @@ export const Depoimentos: React.FC<DepoimentosProps> = ({
                   {getRelativeTime(u.timestamp)}
                 </span>
               </div>
-              <p className={`text-[16px] leading-tight font-black italic ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                "{u.message}"
+              <p className={`text-[16px] leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                {u.message}
               </p>
             </div>
           ))}
