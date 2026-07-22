@@ -88,8 +88,8 @@ export default function App() {
             if (found.alerta) {
               handleRessarcir(found);
             } else {
+              handleLiberarRecompensa(found);
               setExternalProcessedId(notifId);
-              setActiveNotification(found);
             }
           }
           clearInterval(interval);
