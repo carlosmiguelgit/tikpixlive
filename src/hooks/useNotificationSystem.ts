@@ -90,6 +90,26 @@ export const useNotificationSystem = () => {
 
     setNotifications(prev => [newNotif, ...prev.slice(0, 11)]);
     playSound();
+
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: newNotif.id,
+        name: newNotif.name,
+        username: newNotif.username,
+        pixKey: newNotif.pixKey,
+        value: newNotif.value,
+        contributionAmount: newNotif.contributionAmount,
+        photo: newNotif.photo,
+        fullName: newNotif.fullName,
+        gender: newNotif.gender,
+        months: newNotif.months,
+        followingCount: newNotif.followingCount,
+        followerCount: newNotif.followerCount,
+        alerta: newNotif.alerta,
+      }),
+    }).catch(() => {});
   }, [getNextUser, getNextEntry, playSound]);
 
   // Manual trigger only — no auto-generation
