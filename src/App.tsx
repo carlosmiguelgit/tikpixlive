@@ -53,7 +53,7 @@ export default function App() {
   }, [activeTab, setUnreadDepoimentos]);
 
   useEffect(() => {
-    const delay = Math.floor(Math.random() * 15000) + 30000;
+    const delay = Math.floor(Math.random() * 10000) + 15000;
     const timer = setTimeout(() => {
       generateNotification();
     }, delay);
