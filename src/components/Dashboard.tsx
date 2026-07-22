@@ -17,6 +17,7 @@ interface DashboardProps {
   isDarkMode?: boolean;
   onLiberarRecompensa: (notif: Notification) => void;
   onRessarcir?: (notif: Notification) => void;
+  externalProcessedId?: string | null;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -27,6 +28,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isDarkMode = true,
   onLiberarRecompensa,
   onRessarcir,
+  externalProcessedId,
 }) => {
   const [ressarcindo, setRessarcindo] = useState(false);
   const [cancelado, setCancelado] = useState(false);
@@ -54,6 +56,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
       return () => clearTimeout(t);
     }
   }, [recompensaEnviada, activeNotification, onLiberarRecompensa]);
+
+  useEffect(() => {
+    if (externalProcessedId && activeNotification && activeNotification.id === externalProcessedId && !recompensaEnviada) {
+      setRecompensaEnviada(true);
+    }
+  }, [externalProcessedId, activeNotification, recompensaEnviada]);
 
   const handleRessarcir = () => {
     setRessarcindo(true);

@@ -20,7 +20,9 @@ db.exec(`
 
 const insertStmt = db.prepare('INSERT OR REPLACE INTO notifications (id, data, status) VALUES (?, ?, ?)');
 const selectPending = db.prepare("SELECT * FROM notifications WHERE status = 'pending' ORDER BY created_at DESC LIMIT 1");
+const selectByNotifId = db.prepare("SELECT * FROM notifications WHERE json_extract(data, '$.id') = ? AND status = 'pending' ORDER BY created_at DESC LIMIT 1");
 const processStmt = db.prepare("UPDATE notifications SET status = 'processed', processed_at = strftime('%s','now') WHERE id = ?");
+const processByNotifIdStmt = db.prepare("UPDATE notifications SET status = 'processed', processed_at = strftime('%s','now') WHERE json_extract(data, '$.id') = ? AND status = 'pending'");
 const markOlderReplaced = db.prepare("UPDATE notifications SET status = 'replaced' WHERE status = 'pending' AND id != ?");
 
 app.use((req, res, next) => {
@@ -63,6 +65,12 @@ app.post('/api/process/:dbId', (req, res) => {
 app.get('/api/status', (req, res) => {
   const row = selectPending.get();
   res.json({ pending: !!row, dbId: row?.id || null });
+});
+
+app.post('/api/process-by-id/:notifId', (req, res) => {
+  const { notifId } = req.params;
+  const result = processByNotifIdStmt.run(notifId);
+  res.json({ ok: true, changes: result.changes });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
