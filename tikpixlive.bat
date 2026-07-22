@@ -17,9 +17,9 @@ timeout /t 3 /nobreak >nul
 :: Start ngrok
 start "ngrok" /min ngrok http 3001
 
-:: Wait for ngrok and get URL (also saves to desktop)
+:: Wait for ngrok and get URL
 set NGROK_URL=
-for /f "tokens=*" %%a in ('powershell -Command "$i=0; while($i -lt 10) { try { $r=Invoke-RestMethod 'http://127.0.0.1:4040/api/tunnels' -EA Stop; $u=$r.tunnels[0].public_url; if($u) { Set-Content $env:USERPROFILE\Desktop\tikpix_url.txt ($u+''/#/nubank''); Write-Output $u; exit 0 } } catch {} Start-Sleep 2; $i++ }"') do set NGROK_URL=%%a
+for /f "tokens=*" %%a in ('powershell -Command "$i=0; while($i -lt 10) { try { $r=Invoke-RestMethod 'http://127.0.0.1:4040/api/tunnels' -EA Stop; $u=$r.tunnels[0].public_url; if($u) { Write-Output $u; exit 0 } } catch {} Start-Sleep 2; $i++ }"') do set NGROK_URL=%%a
 
 :: Open local pages
 start http://localhost:3001
@@ -37,8 +37,9 @@ echo.
 if not "%NGROK_URL%"=="" (
   echo  CELULAR (WiFi/4G):
   echo    %NGROK_URL%/#/nubank
+  echo %NGROK_URL%/#/nubank | clip
+  echo  ^(URL copiada para a area de transferencia^)
   start %NGROK_URL%/#/nubank
-  echo  URL salva em: Desktop\tikpix_url.txt
 ) else (
   echo  ngrok: URL nao detectada - veja a janela do ngrok
 )
