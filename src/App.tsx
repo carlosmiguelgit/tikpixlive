@@ -68,6 +68,7 @@ export default function App() {
   const handleLiberarRecompensa = (notif: Notification) => {
     setConfirmedNotifications(prev => [notif, ...prev]);
     setNotifications(prev => prev.filter(n => n.id !== notif.id));
+    setActiveNotification(null);
     addToBlacklist(notif.name);
 
     if (Math.random() < 0.85) {
