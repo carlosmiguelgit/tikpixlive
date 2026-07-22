@@ -18,6 +18,7 @@ interface DashboardProps {
   onLiberarRecompensa: (notif: Notification) => void;
   onRessarcir?: (notif: Notification) => void;
   externalProcessedId?: string | null;
+  externalCanceledId?: string | null;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -29,6 +30,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onLiberarRecompensa,
   onRessarcir,
   externalProcessedId,
+  externalCanceledId,
 }) => {
   const [ressarcindo, setRessarcindo] = useState(false);
   const [cancelado, setCancelado] = useState(false);
