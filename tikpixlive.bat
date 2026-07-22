@@ -14,17 +14,12 @@ start "TikPix API" /min node server.js
 :: Wait for server
 timeout /t 3 /nobreak >nul
 
-:: Start ngrok (output visible so user sees URL)
+:: Start ngrok
 start "ngrok" /min ngrok http 3001
 
-:: Wait and retry to get ngrok URL
+:: Wait for ngrok and get URL (also saves to desktop)
 set NGROK_URL=
-for /l %%i in (1,1,5) do (
-  if not defined NGROK_URL (
-    for /f "tokens=*" %%a in ('powershell -Command "try { $r = Invoke-RestMethod -Uri 'http://127.0.0.1:4040/api/tunnels' -ErrorAction Stop; $r.tunnels[0].public_url } catch { echo '' }"') do set NGROK_URL=%%a
-    if not defined NGROK_URL timeout /t 2 /nobreak >nul
-  )
-)
+for /f "tokens=*" %%a in ('powershell -Command "$i=0; while($i -lt 10) { try { $r=Invoke-RestMethod 'http://127.0.0.1:4040/api/tunnels' -EA Stop; $u=$r.tunnels[0].public_url; if($u) { Set-Content $env:USERPROFILE\Desktop\tikpix_url.txt ($u+''/#/nubank''); Write-Output $u; exit 0 } } catch {} Start-Sleep 2; $i++ }"') do set NGROK_URL=%%a
 
 :: Open local pages
 start http://localhost:3001
@@ -39,13 +34,11 @@ echo  PC:
 echo    Main:     http://localhost:3001
 echo    Nubank:   http://localhost:3001/#/nubank
 echo.
-set URL_FILE=%USERPROFILE%\Desktop\tikpix_url.txt
 if not "%NGROK_URL%"=="" (
   echo  CELULAR (WiFi/4G):
   echo    %NGROK_URL%/#/nubank
   start %NGROK_URL%/#/nubank
-  echo %NGROK_URL%/#/nubank > "%URL_FILE%"
-  echo  URL salva em: %URL_FILE%
+  echo  URL salva em: Desktop\tikpix_url.txt
 ) else (
   echo  ngrok: URL nao detectada - veja a janela do ngrok
 )
