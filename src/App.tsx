@@ -191,6 +191,7 @@ export default function App() {
               onLiberarRecompensa={handleLiberarRecompensa}
               onRessarcir={handleRessarcir}
               externalProcessedId={externalProcessedId}
+              externalCanceledId={externalCanceledId}
             />
           )}
           {activeTab === 'extrato' && (
