@@ -108,13 +108,6 @@ export default function App() {
     setActiveNotification(null);
   };
 
-  const handleAvatarClick = () => {
-    const delay = Math.floor(Math.random() * 3000) + 5000;
-    setTimeout(() => {
-      generateNotification();
-    }, delay);
-  };
-
   return (
     <div className={`flex justify-center items-center h-screen overflow-hidden transition-colors duration-500 ${isDarkMode ? 'bg-black' : 'bg-[#e5e7eb]'}`}>
       <div className={`relative w-full max-w-3xl h-full overflow-hidden shadow-2xl border-x transition-colors duration-500 flex flex-col ${isDarkMode ? 'bg-brand-dark border-white/5 text-white' : 'bg-[#FDFCF7] border-black/5 text-slate-900'}`}>
@@ -132,8 +125,7 @@ export default function App() {
         <div className={`absolute bottom-[-10%] right-[-10%] w-[60%] h-[40%] blur-[120px] rounded-full transition-opacity duration-700 ${isDarkMode ? 'bg-blue-500/10 opacity-100' : 'bg-blue-500/5 opacity-30'}`} />
         
         <Header 
-          isDarkMode={isDarkMode} 
-          onAvatarClick={handleAvatarClick}
+          isDarkMode={isDarkMode}
         />
         
         <main className="relative z-10 flex-1 px-4 flex flex-col gap-4 overflow-y-auto pb-4 pt-2">
