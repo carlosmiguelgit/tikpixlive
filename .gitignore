@@ -10,3 +10,7 @@ coverage/
 
 .vercel
 .env*
+
+nubank.db
+nubank.db-shm
+nubank.db-wal

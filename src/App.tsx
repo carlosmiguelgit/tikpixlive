@@ -58,13 +58,11 @@ export default function App() {
 
   const [externalProcessedId, setExternalProcessedId] = useState<string | null>(null);
 
+  const agradecimentoIndexRef = useRef(0);
+
   useEffect(() => {
-    const delay = Math.floor(Math.random() * 10000) + 15000;
-    const timer = setTimeout(() => {
-      generateNotification();
-    }, delay);
-    return () => clearTimeout(timer);
-  }, [notifications.length, generateNotification]);
+    generateNotification();
+  }, []);
 
   useEffect(() => {
     if (notifications.length === 0) return;
@@ -111,6 +109,9 @@ export default function App() {
     setNotifications(prev => prev.filter(n => n.id !== notif.id));
     setActiveNotification(null);
     addToBlacklist(notif.name);
+
+    const nextDelay = Math.floor(Math.random() * 5000) + 10000;
+    setTimeout(() => generateNotification(), nextDelay);
 
     fetch(`/api/process-by-id/${notif.id}`, { method: 'POST' }).catch(() => {});
 
