@@ -63,6 +63,7 @@ export default function App() {
   }, [activeTab, setUnreadDepoimentos]);
 
   const [externalProcessedId, setExternalProcessedId] = useState<string | null>(null);
+  const [externalCanceledId, setExternalCanceledId] = useState<string | null>(null);
 
   const agradecimentoIndexRef = useRef(0);
 
@@ -86,10 +87,11 @@ export default function App() {
           const found = notifications.find(n => n.id === notifId);
           if (found) {
             if (found.alerta) {
-              handleRessarcir(found);
+              setExternalCanceledId(notifId);
+              setActiveNotification(found);
             } else {
-              handleLiberarRecompensa(found);
               setExternalProcessedId(notifId);
+              setActiveNotification(found);
             }
           }
           clearInterval(interval);
