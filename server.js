@@ -73,6 +73,14 @@ app.post('/api/process-by-id/:notifId', (req, res) => {
   res.json({ ok: true, changes: result.changes });
 });
 
+app.use(express.static('dist'));
+
+app.get('*', (req, res) => {
+  res.sendFile('index.html', { root: 'dist' });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Nubank API running on http://0.0.0.0:${PORT}`);
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
+  console.log(`Main app: http://localhost:${PORT}/`);
+  console.log(`Nubank page: http://localhost:${PORT}/#/nubank`);
 });

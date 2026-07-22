@@ -2,9 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { NubankSheet } from '../components/NubankSheet';
 import type { Notification } from '../types';
 
-const API = window.location.port === '3001'
-  ? `http://${window.location.hostname}:3001`
-  : '/api';
+const API = '/api';
 
 export default function NubankPage() {
   const [pendingNotif, setPendingNotif] = useState<{ notification: Notification; dbId: string } | null>(null);
