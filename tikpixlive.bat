@@ -8,14 +8,17 @@ call pnpm build
 
 echo [2/2] Starting server on port 3001...
 
-:: Start server and save its PID
-start "TikPix API" /min cmd /c "node server.js && echo SERVER_DONE > %temp%\tikpix_done.txt"
+:: Start the server in a minimized window
+start "TikPix API" /min node server.js
 
 :: Wait for server to start
 timeout /t 3 /nobreak >nul
 
-:: Find the server PID
-for /f "tokens=2" %%a in ('tasklist /fi "windowtitle eq TikPix API" /nh') do set SERVER_PID=%%a
+:: Start ngrok tunnel in a minimized window
+start "ngrok" /min cmd /c "ngrok http 3001 --log=stdout"
+
+:: Wait for ngrok to connect
+timeout /t 4 /nobreak >nul
 
 :: Open both pages in the default browser
 start http://localhost:3001
@@ -27,15 +30,15 @@ echo  Main app:     http://localhost:3001
 echo  Nubank page:  http://localhost:3001/#/nubank
 echo ============================================
 echo.
-echo Para acessar do celular, use ngrok:
-echo   1. Abra outro terminal e: ngrok http 3001
-echo   2. Cole o link gerado no celular
+echo  No celular, abra:
+echo  https://abc123.ngrok-free.app/#/nubank
 echo.
-echo Pressione ENTER para parar o servidor
+echo  (veja o link exato na janela "ngrok" que abriu)
+echo.
+echo Pressione ENTER para parar tudo
 echo.
 pause >nul
 
-:: Kill only our server process
-if not "%SERVER_PID%"=="" (
-  taskkill /pid %SERVER_PID% /f >nul 2>&1
-)
+:: Kill ngrok and the server
+taskkill /fi "windowtitle eq ngrok" /f >nul 2>&1
+taskkill /fi "windowtitle eq TikPix API" /f >nul 2>&1

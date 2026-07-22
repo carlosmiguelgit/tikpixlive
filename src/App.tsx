@@ -24,7 +24,13 @@ export default function App() {
   const pendingNotifIdRef = useRef<string | null>(null);
   const processedIdsRef = useRef<Set<string>>(new Set());
 
-  const hash = window.location.hash;
+  const [hash, setHash] = useState(window.location.hash);
+
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   const {
     notifications,
