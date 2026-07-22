@@ -39,12 +39,15 @@ echo  PC:
 echo    Main:     http://localhost:3001
 echo    Nubank:   http://localhost:3001/#/nubank
 echo.
+set URL_FILE=%USERPROFILE%\Desktop\tikpix_url.txt
 if not "%NGROK_URL%"=="" (
   echo  CELULAR (WiFi/4G):
   echo    %NGROK_URL%/#/nubank
   start %NGROK_URL%/#/nubank
+  echo %NGROK_URL%/#/nubank > "%URL_FILE%"
+  echo  URL salva em: %URL_FILE%
 ) else (
-  echo  ngrok: URL nao detectada
+  echo  ngrok: URL nao detectada - veja a janela do ngrok
 )
 echo.
 echo ============================================
