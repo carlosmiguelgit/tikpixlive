@@ -1,17 +1,47 @@
 export const NOTIF_SOUND = '/som.mp3';
 
-const RESPOSTAS = [
-  "só gratidão","obrigado","chegou sim","valeu demais","Deus te abençoe",
-  "só sucesso","pode crer","obrigado de coração","muito obrigado",
-  "agradeço demais","recebi sim, obrigado","n esperava por essa","vlw de boa",
-  "obrigado demais, vai ajudar muito","salvou minha semana","Deus te pague",
-  "nunca duvidei","top demais","obrigadão","só gratidão mesmo",
+const RESPOSTAS_150 = [
+  "só gratidão","obrigado","chegou sim","valeu demais",
+  "pode crer","obrigado de coração","vlw de boa",
+  "top demais","obrigadão","só gratidão mesmo",
+  "Deus te abençoe","brigado mesmo","caiu na conta","show de bola",
+  "obrigado de verdade","chegou mesmo","presentão","valeu de coração",
+  "recebi certinho","só alegria",
+];
+
+const RESPOSTAS_500 = [
+  "muito obrigado mesmo","caiu e fez a diferença","salvou demais",
+  "era o que eu precisava","obrigado de coração","Deus te abençoe sempre",
+  "não esperava, valeu","obrigado demais, sério","chegou em boa hora",
+  "vai ajudar muito","só gratidão profunda","muito obrigado, de verdade",
+  "você é fera demais","obrigado, tava precisando","feliz demais aqui",
+  "Deus te pague, irmão","sucesso pra você também","caiu certinho, obrigado",
+  "obrigado, salvou minha semana","top demais, valeu mesmo",
+];
+
+const RESPOSTAS_1000 = [
+  "obrigado demais, vai ajudar muito","salvou minha semana",
+  "nunca duvidei","isso mudou meu mês","muito obrigado de coração",
+  "não tenho palavras","Deus te abençoe imensamente","você mudou meu dia",
+  "obrigado, salvou minha vida","não sei como agradecer",
+  "gratidão imensa","isso veio na hora certa","obrigado de verdade, me ajudou",
+  "você é um anjo","tava passando necessidade, obrigado","nunca vou esquecer",
+  "Deus te abençoe grandemente","obrigado, tava sem esperança",
+  "minha família agradece","só gratidão, obrigado demais",
 ];
 
 export function getThankYouMessage(value: number, indexRef: { current: number }): string {
-  const idx = indexRef.current;
-  indexRef.current = (idx + 1) % RESPOSTAS.length;
-  return RESPOSTAS[idx];
+  let list: string[];
+  if (value >= 1000) {
+    list = RESPOSTAS_1000;
+  } else if (value >= 500) {
+    list = RESPOSTAS_500;
+  } else {
+    list = RESPOSTAS_150;
+  }
+  const idx = indexRef.current % list.length;
+  indexRef.current = idx + 1;
+  return list[idx];
 }
 
 export const BRAZILIAN_BANKS = [
