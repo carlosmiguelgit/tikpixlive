@@ -4,7 +4,8 @@ import {
   ShieldCheck,
   Calendar,
   Wallet,
-  TriangleAlert
+  TriangleAlert,
+  Loader
 } from 'lucide-react';
 import { Notification } from '../types';
 
@@ -14,7 +15,7 @@ interface DashboardProps {
   setActiveNotification: (notif: Notification | null) => void;
   isAnonymousMode: boolean;
   isDarkMode?: boolean;
-  onStartChat: (notif: Notification) => void;
+  onLiberarRecompensa: (notif: Notification) => void;
   onRessarcir?: (notif: Notification) => void;
 }
 
@@ -24,11 +25,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   setActiveNotification,
   isAnonymousMode,
   isDarkMode = true,
-  onStartChat,
+  onLiberarRecompensa,
   onRessarcir,
 }) => {
   const [ressarcindo, setRessarcindo] = useState(false);
   const [cancelado, setCancelado] = useState(false);
+  const [liberando, setLiberando] = useState(false);
+  const [recompensaEnviada, setRecompensaEnviada] = useState(false);
 
   useEffect(() => {
     if (cancelado && activeNotification) {
@@ -41,10 +44,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   }, [cancelado, activeNotification, onRessarcir]);
 
+  useEffect(() => {
+    if (recompensaEnviada && activeNotification) {
+      const t = setTimeout(() => {
+        onLiberarRecompensa(activeNotification);
+        setLiberando(false);
+        setRecompensaEnviada(false);
+      }, 2000);
+      return () => clearTimeout(t);
+    }
+  }, [recompensaEnviada, activeNotification, onLiberarRecompensa]);
+
   const handleRessarcir = () => {
     setRessarcindo(true);
     setTimeout(() => {
       setCancelado(true);
+    }, 3000);
+  };
+
+  const handleLiberarRecompensa = () => {
+    setLiberando(true);
+    setTimeout(() => {
+      setLiberando(false);
+      setRecompensaEnviada(true);
     }, 3000);
   };
   return (
@@ -131,12 +153,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       >
                         {ressarcindo ? 'PROCESSANDO...' : 'RESSARCIR CONTRIBUIÇÃO'}
                       </button>
+                    ) : recompensaEnviada ? (
+                      <div className="w-full py-8 mt-4 rounded-2xl bg-green-500/10 border border-green-500/30 flex flex-col items-center justify-center gap-2">
+                        <span className="text-lg font-black text-green-500 uppercase tracking-[0.05em] text-center leading-snug">
+                          RECOMPENSA DE {activeNotification.value.toLocaleString('pt-BR', { minimumFractionDigits: 0 })} ENVIADA COM SUCESSO!
+                        </span>
+                      </div>
+                    ) : liberando ? (
+                      <div className="w-full py-8 mt-4 rounded-2xl bg-brand-red/10 border border-brand-red/30 flex items-center justify-center">
+                        <Loader className="w-8 h-8 text-brand-red animate-spin" />
+                      </div>
                     ) : (
                       <button 
-                        onClick={() => onStartChat(activeNotification)}
+                        onClick={handleLiberarRecompensa}
                         className="w-full py-5 mt-4 rounded-2xl bg-brand-red text-white font-black uppercase tracking-[0.2em] text-lg transition-all active:scale-95 shadow-lg shadow-brand-red/20"
                       >
-                        CHAMAR NO PRIVADO
+                        LIBERAR RECOMPENSA
                       </button>
                     )}
                   </div>

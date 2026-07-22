@@ -6,36 +6,21 @@ import { Extrato } from './components/Extrato';
 import { Ranking } from './components/Ranking';
 import { Depoimentos } from './components/Depoimentos';
 import { BottomNav } from './components/BottomNav';
-import { NubankSheet } from './components/NubankSheet';
 import { PasswordLock } from './components/PasswordLock';
-import PrivateChat from './components/PrivateChat';
-import { Notification } from './types';
+import { Notification, RewardedUser } from './types';
 import { useNotificationSystem } from './hooks/useNotificationSystem';
-import { CONFIRMACOES, RESPOSTAS_30, RESPOSTAS_80, RESPOSTAS_150 } from './constants';
+import { getThankYouMessage } from './constants';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState<'dash' | 'extrato' | 'ranking' | 'depoimentos'>('dash');
   const [confirmedNotifications, setConfirmedNotifications] = useState<Notification[]>([]);
-  const [balance, setBalance] = useState(84600.00);
-  const [nubankBalance, setNubankBalance] = useState(348742.18);
   const [activeNotification, setActiveNotification] = useState<Notification | null>(null);
-  const [isNubankSheetOpen, setIsNubankSheetOpen] = useState(false);
   const [isAnonymousMode, setIsAnonymousMode] = useState(false);
-  const [chatNotification, setChatNotification] = useState<Notification | null>(null);
-  const [chatSendNonce, setChatSendNonce] = useState(0);
-  const [isChatPayment, setIsChatPayment] = useState(false);
-  const [chatPaymentValue, setChatPaymentValue] = useState(500);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [batteryClickCount, setBatteryClickCount] = useState(0);
-  const [fraseConfirmacao, setFraseConfirmacao] = useState('');
-  const [fraseAgradecimento, setFraseAgradecimento] = useState('');
-
-  const confirmacaoIndexRef = useRef(0);
-  const agradecimento30IndexRef = useRef(0);
-  const agradecimento80IndexRef = useRef(0);
-  const agradecimento150IndexRef = useRef(0);
-  const agradecimentoTextRef = useRef('');
+  const [rewardedUsers, setRewardedUsers] = useState<RewardedUser[]>([]);
+  const agradecimentoIndexRef = useRef(0);
 
   const {
     notifications,
@@ -67,70 +52,16 @@ export default function App() {
     }
   }, [activeTab, setUnreadDepoimentos]);
 
+  useEffect(() => {
+    const delay = Math.floor(Math.random() * 10000) + 15000;
+    const timer = setTimeout(() => {
+      generateNotification();
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [notifications.length, generateNotification]);
+
   const toggleTheme = () => {
     setIsDarkMode(prev => !prev);
-  };
-
-  const handleStartPayment = (notif: Notification) => {
-    setActiveNotification(notif);
-    setIsNubankSheetOpen(true);
-  };
-
-  const processPayment = (method: 'conta' | 'credito', editedValue?: number, notifToProcess?: Notification) => {
-    const targetNotif = notifToProcess || activeNotification;
-    if (!targetNotif) return;
-
-    const finalValue = editedValue ?? targetNotif.value;
-    
-    setConfirmedNotifications(prev => [{ ...targetNotif, value: finalValue }, ...prev]);
-    setNubankBalance(prev => prev - finalValue);
-    setBalance(prev => prev - finalValue);
-    setNotifications(prev => prev.filter(n => n.id !== targetNotif.id));
-    addToBlacklist(targetNotif.name);
-
-    if (Math.random() < 0.85) {
-      const delaySeconds = Math.floor(Math.random() * 180) + 300;
-      const visibleAt = Date.now() + (delaySeconds * 1000);
-      setPendingTestimonials(prev => [...prev, {
-        id: `dyn-${targetNotif.id}`,
-        name: targetNotif.name,
-        text: agradecimentoTextRef.current || "só gratidão guilherme, de verdade",
-        rating: 5,
-        gender: targetNotif.gender,
-        photo: "", 
-        months: targetNotif.months,
-        timestamp: new Date(Date.now() - 3600000),
-        visibleAt
-      }]);
-    }
-  };
-
-  const handleChatNubankOpen = (pixName?: string) => {
-    if (pixName && chatNotification) {
-      setActiveNotification({ ...chatNotification, name: pixName });
-    } else {
-      setActiveNotification(chatNotification);
-    }
-    setIsChatPayment(true);
-    setIsNubankSheetOpen(true);
-  };
-
-  const handleConfirmNubank = (method: 'conta' | 'credito', editedValue: number) => {
-    if (isChatPayment) {
-      processPayment(method, editedValue, chatNotification || undefined);
-      setChatPaymentValue(editedValue);
-      setChatSendNonce(prev => prev + 1);
-      setIsChatPayment(false);
-    } else {
-      processPayment(method, editedValue);
-    }
-    setActiveNotification(null);
-  };
-
-  const handleCloseNubank = () => {
-    setIsNubankSheetOpen(false);
-    setActiveNotification(null);
-    setIsChatPayment(false);
   };
 
   const handleBatteryClick = () => {
@@ -145,63 +76,37 @@ export default function App() {
     setTimeout(() => setBatteryClickCount(0), 3000);
   };
 
-  const handleStartChat = (notif: Notification) => {
-    setChatNotification(notif);
+  const handleLiberarRecompensa = (notif: Notification) => {
+    setConfirmedNotifications(prev => [notif, ...prev]);
+    setNotifications(prev => prev.filter(n => n.id !== notif.id));
+    setActiveNotification(null);
+    addToBlacklist(notif.name);
 
-    const idxConf = confirmacaoIndexRef.current;
-    confirmacaoIndexRef.current = (idxConf + 1) % CONFIRMACOES.length;
-    setFraseConfirmacao(CONFIRMACOES[idxConf]);
+    const mensagem = getThankYouMessage(notif.value, agradecimentoIndexRef);
 
-    const pool = notif.value >= 150 ? RESPOSTAS_150 : notif.value >= 80 ? RESPOSTAS_80 : RESPOSTAS_30;
-    const idxRef = notif.value >= 150 ? agradecimento150IndexRef : notif.value >= 80 ? agradecimento80IndexRef : agradecimento30IndexRef;
-    const idxAgr = idxRef.current;
-    idxRef.current = (idxAgr + 1) % pool.length;
-    const frase = pool[idxAgr];
-    setFraseAgradecimento(frase);
-    agradecimentoTextRef.current = frase;
+    setTimeout(() => {
+      const rewardedUser: RewardedUser = {
+        id: notif.id,
+        name: notif.name,
+        username: notif.username,
+        photo: notif.photo,
+        gender: notif.gender,
+        months: notif.months,
+        value: notif.value,
+        contributionAmount: notif.contributionAmount,
+        followingCount: notif.followingCount,
+        followerCount: notif.followerCount,
+        fullName: notif.fullName,
+        message: mensagem,
+        timestamp: new Date(),
+      };
+      setRewardedUsers(prev => [rewardedUser, ...prev]);
+    }, 30000);
   };
 
   const handleRessarcir = (notif: Notification) => {
     setNotifications(prev => prev.filter(n => n.id !== notif.id));
     setActiveNotification(null);
-  };
-
-  const handleChatComplete = (name: string, pixKey: string) => {
-    if (!chatNotification) return;
-    const notif = { ...chatNotification, name, pixKey };
-    setConfirmedNotifications(prev => [notif, ...prev]);
-    setNotifications(prev => prev.filter(n => n.id !== chatNotification.id));
-    addToBlacklist(chatNotification.name);
-    if (Math.random() < 0.85) {
-      const delaySeconds = Math.floor(Math.random() * 180) + 300;
-      const visibleAt = Date.now() + (delaySeconds * 1000);
-      setPendingTestimonials(prev => [...prev, {
-        id: `dyn-${chatNotification.id}`,
-        name: chatNotification.name,
-        text: "só gratidão guilherme, de verdade",
-        rating: 5,
-        gender: chatNotification.gender,
-        photo: "",
-        months: chatNotification.months,
-        timestamp: new Date(Date.now() - 3600000),
-        visibleAt
-      }]);
-    }
-    setChatNotification(null);
-  };
-
-  const handleChatBack = () => {
-    setChatNotification(null);
-  };
-
-  const avatarTimer = useRef<ReturnType<typeof setTimeout>>();
-
-  const handleAvatarClick = () => {
-    if (avatarTimer.current) clearTimeout(avatarTimer.current);
-    const delay = Math.floor(Math.random() * 3000) + 5000;
-    avatarTimer.current = setTimeout(() => {
-      generateNotification();
-    }, delay);
   };
 
   return (
@@ -221,8 +126,7 @@ export default function App() {
         <div className={`absolute bottom-[-10%] right-[-10%] w-[60%] h-[40%] blur-[120px] rounded-full transition-opacity duration-700 ${isDarkMode ? 'bg-blue-500/10 opacity-100' : 'bg-blue-500/5 opacity-30'}`} />
         
         <Header 
-          isDarkMode={isDarkMode} 
-          onAvatarClick={handleAvatarClick}
+          isDarkMode={isDarkMode}
         />
         
         <main className="relative z-10 flex-1 px-4 flex flex-col gap-4 overflow-y-auto pb-4 pt-2">
@@ -233,7 +137,7 @@ export default function App() {
               setActiveNotification={setActiveNotification}
               isAnonymousMode={isAnonymousMode}
               isDarkMode={isDarkMode}
-              onStartChat={handleStartChat}
+              onLiberarRecompensa={handleLiberarRecompensa}
               onRessarcir={handleRessarcir}
             />
           )}
@@ -254,52 +158,22 @@ export default function App() {
           )}
           {activeTab === 'depoimentos' && (
             <Depoimentos
-              dynamicTestimonials={dynamicTestimonials}
+              rewardedUsers={rewardedUsers}
               isDarkMode={isDarkMode}
             />
           )}
         </main>
         
-        <NubankSheet 
-          isOpen={isNubankSheetOpen}
-          onClose={handleCloseNubank}
-          notification={activeNotification}
-          nubankBalance={nubankBalance}
-          onConfirm={handleConfirmNubank}
-          isAnonymousMode={isAnonymousMode}
-          isDarkMode={isDarkMode}
-        />
-
-        {!isNubankSheetOpen && (
-          <div className="shrink-0">
-            <BottomNav 
-              activeTab={activeTab} 
-              setActiveTab={setActiveTab} 
-              isDarkMode={isDarkMode}
-              unreadDepoimentos={unreadDepoimentos}
-            />
-          </div>
-        )}
+        <div className="shrink-0">
+          <BottomNav 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            isDarkMode={isDarkMode}
+            unreadDepoimentos={unreadDepoimentos}
+          />
+        </div>
         
         <div className={`absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 rounded-full z-20 transition-colors duration-500 ${isDarkMode ? 'bg-white/10' : 'bg-black/10'}`} />
-
-        {chatNotification && (
-          <PrivateChat
-            username={chatNotification.username}
-            nickname={chatNotification.name}
-            fullName={chatNotification.fullName}
-            avatar={chatNotification.photo}
-            followingCount={chatNotification.followingCount}
-            followerCount={chatNotification.followerCount}
-            onComplete={handleChatComplete}
-            onBack={handleChatBack}
-            onNubankOpen={handleChatNubankOpen}
-            chatSendNonce={chatSendNonce}
-            paymentValue={chatPaymentValue}
-            fraseConfirmacao={fraseConfirmacao}
-            fraseAgradecimento={fraseAgradecimento}
-          />
-        )}
           </>
         )}
       </div>
