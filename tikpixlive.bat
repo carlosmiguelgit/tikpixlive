@@ -39,7 +39,7 @@ if not "%NGROK_URL%"=="" (
   echo    %NGROK_URL%
   echo %NGROK_URL% | clip
   echo  ^(URL copiada para a area de transferencia^)
-  start %NGROK_URL%
+  powershell -Command "Start-Process '%NGROK_URL%'"
 ) else (
   echo  ngrok: URL nao detectada - veja a janela do ngrok
 )
