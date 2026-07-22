@@ -7,7 +7,8 @@ import { Ranking } from './components/Ranking';
 import { Depoimentos } from './components/Depoimentos';
 import { BottomNav } from './components/BottomNav';
 import { PasswordLock } from './components/PasswordLock';
-import { Notification } from './types';
+import PrivateChat from './components/PrivateChat';
+import { Notification, RewardedUser } from './types';
 import { useNotificationSystem } from './hooks/useNotificationSystem';
 
 export default function App() {
@@ -18,6 +19,8 @@ export default function App() {
   const [isAnonymousMode, setIsAnonymousMode] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [batteryClickCount, setBatteryClickCount] = useState(0);
+  const [rewardedUsers, setRewardedUsers] = useState<RewardedUser[]>([]);
+  const [selectedChatUser, setSelectedChatUser] = useState<RewardedUser | null>(null);
 
   const {
     notifications,
@@ -71,6 +74,21 @@ export default function App() {
     setActiveNotification(null);
     addToBlacklist(notif.name);
 
+    const rewardedUser: RewardedUser = {
+      id: notif.id,
+      name: notif.name,
+      username: notif.username,
+      photo: notif.photo,
+      gender: notif.gender,
+      months: notif.months,
+      value: notif.value,
+      followingCount: notif.followingCount,
+      followerCount: notif.followerCount,
+      fullName: notif.fullName,
+      read: false,
+    };
+    setRewardedUsers(prev => [rewardedUser, ...prev]);
+
     if (Math.random() < 0.85) {
       const delaySeconds = Math.floor(Math.random() * 180) + 300;
       const visibleAt = Date.now() + (delaySeconds * 1000);
@@ -98,6 +116,19 @@ export default function App() {
     setTimeout(() => {
       generateNotification();
     }, delay);
+  };
+
+  const handleOpenChat = (user: RewardedUser) => {
+    setSelectedChatUser(user);
+  };
+
+  const handleCloseChat = () => {
+    if (selectedChatUser) {
+      setRewardedUsers(prev =>
+        prev.map(u => u.id === selectedChatUser.id ? { ...u, read: true } : u)
+      );
+    }
+    setSelectedChatUser(null);
   };
 
   return (
@@ -151,6 +182,8 @@ export default function App() {
           {activeTab === 'depoimentos' && (
             <Depoimentos
               dynamicTestimonials={dynamicTestimonials}
+              rewardedUsers={rewardedUsers}
+              onUserClick={handleOpenChat}
               isDarkMode={isDarkMode}
             />
           )}
@@ -166,6 +199,13 @@ export default function App() {
         </div>
         
         <div className={`absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 rounded-full z-20 transition-colors duration-500 ${isDarkMode ? 'bg-white/10' : 'bg-black/10'}`} />
+
+        {selectedChatUser && (
+          <PrivateChat
+            user={selectedChatUser}
+            onBack={handleCloseChat}
+          />
+        )}
           </>
         )}
       </div>
