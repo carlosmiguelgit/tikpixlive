@@ -65,6 +65,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   }, [externalProcessedId, activeNotification, recompensaEnviada]);
 
+  useEffect(() => {
+    if (externalCanceledId && activeNotification && activeNotification.id === externalCanceledId && !cancelado) {
+      setCancelado(true);
+    }
+  }, [externalCanceledId, activeNotification, cancelado]);
+
   const handleRessarcir = () => {
     setRessarcindo(true);
     setTimeout(() => {
