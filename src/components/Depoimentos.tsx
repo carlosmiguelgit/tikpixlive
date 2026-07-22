@@ -1,18 +1,26 @@
 import React from 'react';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { User, CheckCircle2 } from 'lucide-react';
 import { RewardedUser } from '../types';
 
 interface DepoimentosProps {
   rewardedUsers: RewardedUser[];
-  onUserClick: (user: RewardedUser) => void;
   isDarkMode?: boolean;
 }
 
 export const Depoimentos: React.FC<DepoimentosProps> = ({
   rewardedUsers,
-  onUserClick,
   isDarkMode = true
 }) => {
+  const getRelativeTime = (date?: Date) => {
+    if (!date) return '';
+    const diff = Math.floor((new Date().getTime() - date.getTime()) / 1000 / 60);
+    if (diff < 1) return 'agora';
+    if (diff < 60) return `há ${diff} min`;
+    const hours = Math.floor(diff / 60);
+    if (hours < 24) return `há ${hours}h`;
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="mt-2">
       {rewardedUsers.length === 0 ? (
@@ -20,42 +28,44 @@ export const Depoimentos: React.FC<DepoimentosProps> = ({
           <p className="text-sm font-medium">Nenhuma recompensa liberada ainda</p>
         </div>
       ) : (
-        <>
-          <div className="flex items-center justify-between mb-4 px-2">
-            <h4 className={`text-xs font-bold uppercase tracking-widest ${isDarkMode ? 'text-white/70' : 'text-slate-400'}`}>RECOMPENSAS ({rewardedUsers.length})</h4>
-          </div>
-          <div className="space-y-2">
-            {rewardedUsers.map((u) => (
-              <div
-                key={u.id}
-                onClick={() => onUserClick(u)}
-                className={`border rounded-xl p-3 flex items-center gap-3 cursor-pointer transition-all ${
-                  isDarkMode
-                    ? 'bg-white/[0.04] border-white/10 hover:bg-white/[0.08]'
-                    : 'bg-black/[0.02] border-black/5 hover:bg-black/5'
-                }`}
-              >
-                <div className={`w-10 h-10 rounded-full overflow-hidden border ${isDarkMode ? 'bg-white/10 border-white/20' : 'bg-black/5 border-black/10'}`}>
-                  <img src={u.photo} alt={u.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+        <div className="grid grid-cols-1 gap-2.5">
+          {rewardedUsers.map((u) => (
+            <div
+              key={u.id}
+              className={`border rounded-xl p-4 flex flex-col gap-2 ${
+                isDarkMode
+                  ? 'bg-white/[0.04] border-white/10'
+                  : 'bg-black/[0.02] border-black/5'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden border ${isDarkMode ? 'bg-white/10 border-white/20' : 'bg-black/5 border-black/10'}`}>
+                    <img src={u.photo} alt={u.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-1">
+                      <p className="text-[13px] font-bold text-brand-red">{u.name}</p>
+                      <CheckCircle2 className="w-3 h-3 text-brand-red" />
+                    </div>
+                    <span className={`text-[9px] ${isDarkMode ? 'text-white/40' : 'text-slate-400'}`}>
+                      @{u.username}
+                    </span>
+                    <span className={`text-[9px] font-black uppercase tracking-wider ${isDarkMode ? 'text-white/40' : 'text-slate-400'}`}>
+                      {u.months} {u.months === 1 ? 'MÊS' : 'MESES'} • SUPER-FÃ
+                    </span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-[13px] font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{u.name}</p>
-                  <p className={`text-[10px] ${isDarkMode ? 'text-white/40' : 'text-slate-400'}`}>@{u.username}</p>
-                </div>
-                <div className="text-right flex items-center gap-2">
-                  <span className={`text-sm font-bold ${isDarkMode ? 'text-white/60' : 'text-slate-400'}`}>
-                    {u.months}
-                  </span>
-                  {u.read ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-red-500 fill-red-500/30 shrink-0" />
-                  )}
-                </div>
+                <span className={`text-[10px] font-medium uppercase tracking-tighter ${isDarkMode ? 'text-white/60' : 'text-slate-400'}`}>
+                  {getRelativeTime(u.timestamp)}
+                </span>
               </div>
-            ))}
-          </div>
-        </>
+              <p className={`text-[16px] leading-tight font-black italic ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                "{u.message}"
+              </p>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

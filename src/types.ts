@@ -42,5 +42,6 @@ export interface RewardedUser {
   followingCount?: number;
   followerCount?: number;
   fullName?: string;
-  read: boolean;
+  message: string;
+  timestamp: Date;
 }

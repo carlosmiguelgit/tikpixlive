@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { StatusBar } from './components/StatusBar';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
@@ -7,9 +7,9 @@ import { Ranking } from './components/Ranking';
 import { Depoimentos } from './components/Depoimentos';
 import { BottomNav } from './components/BottomNav';
 import { PasswordLock } from './components/PasswordLock';
-import PrivateChat from './components/PrivateChat';
 import { Notification, RewardedUser } from './types';
 import { useNotificationSystem } from './hooks/useNotificationSystem';
+import { getThankYouMessage } from './constants';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,7 +20,7 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [batteryClickCount, setBatteryClickCount] = useState(0);
   const [rewardedUsers, setRewardedUsers] = useState<RewardedUser[]>([]);
-  const [selectedChatUser, setSelectedChatUser] = useState<RewardedUser | null>(null);
+  const agradecimentoIndexRef = useRef(0);
 
   const {
     notifications,
@@ -52,6 +52,14 @@ export default function App() {
     }
   }, [activeTab, setUnreadDepoimentos]);
 
+  useEffect(() => {
+    const delay = Math.floor(Math.random() * 15000) + 30000;
+    const timer = setTimeout(() => {
+      generateNotification();
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [notifications.length, generateNotification]);
+
   const toggleTheme = () => {
     setIsDarkMode(prev => !prev);
   };
@@ -74,20 +82,25 @@ export default function App() {
     setActiveNotification(null);
     addToBlacklist(notif.name);
 
-    const rewardedUser: RewardedUser = {
-      id: notif.id,
-      name: notif.name,
-      username: notif.username,
-      photo: notif.photo,
-      gender: notif.gender,
-      months: notif.months,
-      value: notif.value,
-      followingCount: notif.followingCount,
-      followerCount: notif.followerCount,
-      fullName: notif.fullName,
-      read: false,
-    };
-    setRewardedUsers(prev => [rewardedUser, ...prev]);
+    const mensagem = getThankYouMessage(notif.value, agradecimentoIndexRef);
+
+    setTimeout(() => {
+      const rewardedUser: RewardedUser = {
+        id: notif.id,
+        name: notif.name,
+        username: notif.username,
+        photo: notif.photo,
+        gender: notif.gender,
+        months: notif.months,
+        value: notif.value,
+        followingCount: notif.followingCount,
+        followerCount: notif.followerCount,
+        fullName: notif.fullName,
+        message: mensagem,
+        timestamp: new Date(),
+      };
+      setRewardedUsers(prev => [rewardedUser, ...prev]);
+    }, 30000);
   };
 
   const handleRessarcir = (notif: Notification) => {
@@ -100,19 +113,6 @@ export default function App() {
     setTimeout(() => {
       generateNotification();
     }, delay);
-  };
-
-  const handleOpenChat = (user: RewardedUser) => {
-    setSelectedChatUser(user);
-  };
-
-  const handleCloseChat = () => {
-    if (selectedChatUser) {
-      setRewardedUsers(prev =>
-        prev.map(u => u.id === selectedChatUser.id ? { ...u, read: true } : u)
-      );
-    }
-    setSelectedChatUser(null);
   };
 
   return (
@@ -166,7 +166,6 @@ export default function App() {
           {activeTab === 'depoimentos' && (
             <Depoimentos
               rewardedUsers={rewardedUsers}
-              onUserClick={handleOpenChat}
               isDarkMode={isDarkMode}
             />
           )}
@@ -182,13 +181,6 @@ export default function App() {
         </div>
         
         <div className={`absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 rounded-full z-20 transition-colors duration-500 ${isDarkMode ? 'bg-white/10' : 'bg-black/10'}`} />
-
-        {selectedChatUser && (
-          <PrivateChat
-            user={selectedChatUser}
-            onBack={handleCloseChat}
-          />
-        )}
           </>
         )}
       </div>
