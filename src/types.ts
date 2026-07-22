@@ -39,6 +39,7 @@ export interface RewardedUser {
   gender: 'male' | 'female';
   months: number;
   value: number;
+  contributionAmount: number;
   followingCount?: number;
   followerCount?: number;
   fullName?: string;

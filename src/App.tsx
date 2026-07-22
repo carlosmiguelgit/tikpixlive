@@ -93,6 +93,7 @@ export default function App() {
         gender: notif.gender,
         months: notif.months,
         value: notif.value,
+        contributionAmount: notif.contributionAmount,
         followingCount: notif.followingCount,
         followerCount: notif.followerCount,
         fullName: notif.fullName,

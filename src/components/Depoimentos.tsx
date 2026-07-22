@@ -52,7 +52,7 @@ export const Depoimentos: React.FC<DepoimentosProps> = ({
                       @{u.username}
                     </span>
                     <span className={`text-[9px] font-black uppercase tracking-wider ${isDarkMode ? 'text-white/40' : 'text-slate-400'}`}>
-                      {u.months} {u.months === 1 ? 'MÊS' : 'MESES'} • SUPER-FÃ
+                      CONTRIBUIU COM {u.contributionAmount} - RECEBEU {u.value}
                     </span>
                   </div>
                 </div>
