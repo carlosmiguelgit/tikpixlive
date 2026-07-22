@@ -75,6 +75,10 @@ app.post('/api/process-by-id/:notifId', (req, res) => {
 
 app.use(express.static('dist'));
 
+app.get('/nubank', (req, res) => {
+  res.redirect('/#/nubank');
+});
+
 app.get('*', (req, res) => {
   res.sendFile('index.html', { root: 'dist' });
 });

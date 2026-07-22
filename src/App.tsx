@@ -154,7 +154,7 @@ export default function App() {
     setActiveNotification(null);
   };
 
-  if (hash.startsWith('#/nubank') || window.location.pathname === '/nubank') {
+  if (hash.startsWith('#/nubank')) {
     return <NubankPage />;
   }
 
