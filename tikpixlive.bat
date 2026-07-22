@@ -17,9 +17,9 @@ timeout /t 3 /nobreak >nul
 :: Start ngrok
 start "ngrok" /min ngrok http 3001
 
-:: Wait for ngrok and get URL
+:: Wait for ngrok and get URL (full path with /#/nubank)
 set NGROK_URL=
-for /f "tokens=*" %%a in ('powershell -Command "$i=0; while($i -lt 10) { try { $r=Invoke-RestMethod 'http://127.0.0.1:4040/api/tunnels' -EA Stop; $u=$r.tunnels[0].public_url; if($u) { Write-Output $u; exit 0 } } catch {} Start-Sleep 2; $i++ }"') do set NGROK_URL=%%a
+for /f "tokens=*" %%a in ('powershell -ExecutionPolicy Bypass -File "%~dp0get-ngrok-url.ps1"') do set NGROK_URL=%%a
 
 :: Open local pages
 start http://localhost:3001
@@ -36,10 +36,10 @@ echo    Nubank:   http://localhost:3001/#/nubank
 echo.
 if not "%NGROK_URL%"=="" (
   echo  CELULAR (WiFi/4G):
-  echo    %NGROK_URL%/#/nubank
-  echo %NGROK_URL%/#/nubank | clip
+  echo    %NGROK_URL%
+  echo %NGROK_URL% | clip
   echo  ^(URL copiada para a area de transferencia^)
-  start %NGROK_URL%/#/nubank
+  start %NGROK_URL%
 ) else (
   echo  ngrok: URL nao detectada - veja a janela do ngrok
 )
