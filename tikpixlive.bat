@@ -14,15 +14,17 @@ start "TikPix API" /min node server.js
 :: Wait for server
 timeout /t 3 /nobreak >nul
 
-:: Start ngrok saving its log
-start "ngrok" /min cmd /c "ngrok http 3001 > %temp%\ngrok_log.txt 2>&1"
+:: Start ngrok (output visible so user sees URL)
+start "ngrok" /min ngrok http 3001
 
-:: Wait for ngrok to connect
-timeout /t 5 /nobreak >nul
-
-:: Extract the public URL from ngrok's local API
+:: Wait and retry to get ngrok URL
 set NGROK_URL=
-for /f "tokens=*" %%a in ('powershell -Command "try { $r = Invoke-RestMethod -Uri 'http://127.0.0.1:4040/api/tunnels' -ErrorAction Stop; $r.tunnels[0].public_url } catch { echo '' }"') do set NGROK_URL=%%a
+for /l %%i in (1,1,5) do (
+  if not defined NGROK_URL (
+    for /f "tokens=*" %%a in ('powershell -Command "try { $r = Invoke-RestMethod -Uri 'http://127.0.0.1:4040/api/tunnels' -ErrorAction Stop; $r.tunnels[0].public_url } catch { echo '' }"') do set NGROK_URL=%%a
+    if not defined NGROK_URL timeout /t 2 /nobreak >nul
+  )
+)
 
 :: Open local pages
 start http://localhost:3001
@@ -42,8 +44,7 @@ if not "%NGROK_URL%"=="" (
   echo    %NGROK_URL%/#/nubank
   start %NGROK_URL%/#/nubank
 ) else (
-  echo  ngrok: aguardando conexao...
-  echo  Veja a janela "ngrok" para o link
+  echo  ngrok: URL nao detectada
 )
 echo.
 echo ============================================
