@@ -114,7 +114,7 @@ export const NubankReceipt: FC<NubankReceiptProps> = ({
             <div className="flex justify-between items-start">
               <span className="text-base font-bold">Nome</span>
               <span className="text-base font-medium text-slate-500 text-right max-w-[200px]">
-                {isAnonymousMode ? 'Alguém' : notification.name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                {isAnonymousMode ? 'Alguém' : (notification.fullName || notification.name).split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
               </span>
             </div>
             <div className="flex justify-between items-start">

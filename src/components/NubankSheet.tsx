@@ -198,7 +198,7 @@ export const NubankSheet: FC<NubankSheetProps> = ({
                   <div>
                     <p className={`text-[13px] font-medium ${subTextColor} mb-1`}>Transferir para</p>
                     <p className={`text-xl font-bold ${textColor}`}>
-                      {isAnonymousMode ? 'Alguém' : capitalizeEachWord(notification.name)}
+                      {isAnonymousMode ? 'Alguém' : capitalizeEachWord(notification.fullName || notification.name)}
                     </p>
                   </div>
 
@@ -289,7 +289,7 @@ export const NubankSheet: FC<NubankSheetProps> = ({
                     Em quantas vezes você gostaria de parcelar?
                   </h2>
                   <p className={`text-sm ${subTextColor} leading-relaxed`}>
-                    Mesmo parcelando, <span className={`font-bold ${textColor}`}>{isAnonymousMode ? 'Alguém' : capitalizeEachWord(notification.name)}</span> vai receber tudo de uma vez e imediatamente.
+                    Mesmo parcelando, <span className={`font-bold ${textColor}`}>{isAnonymousMode ? 'Alguém' : capitalizeEachWord(notification.fullName || notification.name)}</span> vai receber tudo de uma vez e imediatamente.
                   </p>
                 </div>
 
@@ -361,7 +361,7 @@ export const NubankSheet: FC<NubankSheetProps> = ({
 
                 <div className="px-8 pt-6 pb-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-[16px] font-semibold text-[#820AD1]">{isAnonymousMode ? 'Alguém' : capitalizeEachWord(notification.name)}</p>
+                    <p className="text-[16px] font-semibold text-[#820AD1]">{isAnonymousMode ? 'Alguém' : capitalizeEachWord(notification.fullName || notification.name)}</p>
                     <Pencil size={21} className="text-[#820AD1]" />
                   </div>
                   <p className="text-[13px] text-[#820AD1] mt-0.5">{destBankData.bank}</p>
@@ -471,7 +471,7 @@ export const NubankSheet: FC<NubankSheetProps> = ({
                 <div className={`space-y-0`}>
                   <div className={`flex justify-between py-3 border-b ${borderColor}`}>
                     <span className={`text-base font-bold ${textColor}`}>Para</span>
-                    <span className={`text-base ${subTextColor}`}>{isAnonymousMode ? 'Alguém' : capitalizeEachWord(notification.name)}</span>
+                    <span className={`text-base ${subTextColor}`}>{isAnonymousMode ? 'Alguém' : capitalizeEachWord(notification.fullName || notification.name)}</span>
                   </div>
                   <div className={`flex justify-between py-3 border-b ${borderColor}`}>
                     <span className={`text-base font-bold ${textColor}`}>Valor enviado</span>

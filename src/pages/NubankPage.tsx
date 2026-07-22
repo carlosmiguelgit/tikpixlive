@@ -53,7 +53,7 @@ export default function NubankPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-lg font-bold text-slate-900">
-                    {pendingNotif.notification.name}
+                    {pendingNotif.notification.fullName || pendingNotif.notification.name}
                   </p>
                   <p className="text-sm text-slate-500">
                     @{pendingNotif.notification.username}
