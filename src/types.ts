@@ -30,19 +30,3 @@ export interface Testimonial {
 }
 
 export type PaymentMethod = 'nubank' | 'classic';
-
-export interface RewardedUser {
-  id: string;
-  name: string;
-  username: string;
-  photo: string;
-  gender: 'male' | 'female';
-  months: number;
-  value: number;
-  contributionAmount: number;
-  followingCount?: number;
-  followerCount?: number;
-  fullName?: string;
-  message: string;
-  timestamp: Date;
-}
