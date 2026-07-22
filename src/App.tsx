@@ -77,9 +77,15 @@ export default function App() {
         if (!data.pending && pendingNotifIdRef.current && !processedIdsRef.current.has(pendingNotifIdRef.current)) {
           const notifId = pendingNotifIdRef.current;
           processedIdsRef.current.add(notifId);
-          setExternalProcessedId(notifId);
           const found = notifications.find(n => n.id === notifId);
-          if (found) setActiveNotification(found);
+          if (found) {
+            if (found.alerta) {
+              handleRessarcir(found);
+            } else {
+              setExternalProcessedId(notifId);
+              setActiveNotification(found);
+            }
+          }
           clearInterval(interval);
         }
       } catch {}

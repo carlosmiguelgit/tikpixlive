@@ -74,15 +74,30 @@ export default function NubankPage() {
                   {pendingNotif.notification.pixKey}
                 </span>
               </div>
-              <button
-                onClick={() => setIsSheetOpen(true)}
-                className="w-full py-3 rounded-full bg-[#820AD1] text-white font-bold text-sm active:scale-95 transition-transform shadow-lg shadow-[#820AD1]/20 flex items-center justify-center gap-2"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 5v14M5 12h14"/>
-                </svg>
-                NOVA TRANSFERÊNCIA
-              </button>
+              {pendingNotif.notification.alerta ? (
+                <button
+                  onClick={async () => {
+                    try { await fetch(`${API}/process-by-id/${pendingNotif.notification.id}`, { method: 'POST' }); } catch {}
+                    setPendingNotif(null);
+                  }}
+                  className="w-full py-3 rounded-full bg-slate-200 text-slate-600 font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-2"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                  FECHAR
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsSheetOpen(true)}
+                  className="w-full py-3 rounded-full bg-[#820AD1] text-white font-bold text-sm active:scale-95 transition-transform shadow-lg shadow-[#820AD1]/20 flex items-center justify-center gap-2"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  NOVA TRANSFERÊNCIA
+                </button>
+              )}
             </div>
           </div>
         ) : (
