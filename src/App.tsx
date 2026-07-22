@@ -154,6 +154,8 @@ export default function App() {
   const handleRessarcir = (notif: Notification) => {
     setNotifications(prev => prev.filter(n => n.id !== notif.id));
     setActiveNotification(null);
+    const nextDelay = Math.floor(Math.random() * 5000) + 10000;
+    setTimeout(() => generateNotification(), nextDelay);
   };
 
   if (hash.startsWith('#/nubank')) {
